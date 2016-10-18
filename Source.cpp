@@ -9,7 +9,7 @@
 using namespace Leap;
 
 // inherting from the Listener Class
-class SampleListener : public Listener{
+class MusicByTouchListener : public Listener{
 	public:
 		virtual void onInit(const Controller&);
 		virtual void onConnect(const Controller&);
@@ -29,12 +29,12 @@ const std::string boneNames[] = { "Metacarpal", "Proximal", "Middle", "Distal" }
 const std::string stateNames[] = { "STATE_INVALID", "STATE_START", "STATE_UPDATE", "STATE_END" };
 
 // creating bodies for the virtual functions in SampleListener
-void SampleListener::onInit(const Controller& controller){
+void MusicByTouchListener::onInit(const Controller& controller){
 	std::cout << "Initialized" << std::endl;
 }
 
 // for now i'm just gonna add a bunch of fake functions that print stuff out
-void SampleListener::onConnect(const Controller& controller){
+void MusicByTouchListener::onConnect(const Controller& controller){
 	std::cout << "Connected" << std::endl;
 	
 	// making sure to enable gesture reading
@@ -44,43 +44,43 @@ void SampleListener::onConnect(const Controller& controller){
 	controller.enableGesture(Gesture::TYPE_SWIPE);
 }
 
-void SampleListener::onDisconnect(const Controller& controller) {
+void MusicByTouchListener::onDisconnect(const Controller& controller) {
 	std::cout << "Disconnecting" << std::endl;
 }
 
-void SampleListener::onExit(const Controller& controller) {
+void MusicByTouchListener::onExit(const Controller& controller) {
 	std::cout << "Exiting" << std::endl;
 }
 
-void SampleListener::onFrame(const Controller& controller) {
+void MusicByTouchListener::onFrame(const Controller& controller) {
 	// ouputting frame info at each frame capture
 	const Frame frame = controller.frame();
 	std::cout << "Frame id: " << frame.id() << std::endl;
 }
 
-void SampleListener::onFocusGained(const Controller& controller) {
+void MusicByTouchListener::onFocusGained(const Controller& controller) {
 	std::cout << "Focusing" << std::endl;
 }
 
-void SampleListener::onFocusLost(const Controller& controller) {
+void MusicByTouchListener::onFocusLost(const Controller& controller) {
 	std::cout << "Losing Focus" << std::endl;
 }
 
-void SampleListener::onDeviceChange(const Controller& controller) {
+void MusicByTouchListener::onDeviceChange(const Controller& controller) {
 	std::cout << "Changing Devices" << std::endl;
 }
 
-void SampleListener::onServiceConnect(const Controller& controller) {
+void MusicByTouchListener::onServiceConnect(const Controller& controller) {
 	std::cout << "Connecting to Service" << std::endl;
 }
 
-void SampleListener::onServiceDisconnect(const Controller& controller) {
+void MusicByTouchListener::onServiceDisconnect(const Controller& controller) {
 	std::cout << "Disconnecting from Service" << std::endl;
 }
 
 int main(int argc, char** argv){
 	// Creating the sample listener and controller
-	SampleListener list;
+	MusicByTouchListener list;
 	Controller controller;
 
 	// connecting the listener to the controller
