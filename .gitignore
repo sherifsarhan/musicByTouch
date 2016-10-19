@@ -1,7 +1,9 @@
 /Debug
 /x64
+/notes
 *.filters
 *.VC.*
 *.sln
 *.user
 *.suo
+

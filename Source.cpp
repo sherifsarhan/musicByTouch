@@ -4,6 +4,9 @@
 
 #include <iostream>
 #include <cstring>
+// looks like we absolutely need this here. oh well
+#include <Windows.h>
+#include <mmsystem.h>
 #include "Leap.h"
 
 using namespace Leap;
@@ -22,6 +25,7 @@ class MusicByTouchListener : public Listener{
 		virtual void onServiceConnect(const Controller&);
 		virtual void onServiceDisconnect(const Controller&);
 	private:
+		void playNote(const std::string hand, const std::string finger);
 };
 
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
@@ -55,7 +59,50 @@ void MusicByTouchListener::onExit(const Controller& controller) {
 void MusicByTouchListener::onFrame(const Controller& controller) {
 	// ouputting frame info at each frame capture
 	const Frame frame = controller.frame();
-	std::cout << "Frame id: " << frame.id() << std::endl;
+	// a bunch of random info
+	/*
+	// Commenting out for now while I try to only detect fingers
+	std::cout << "Frame id: " << frame.id()
+		<< ", timestamp: " << frame.timestamp()
+		<< ", hands: " << frame.hands().count()
+		<< ", extended fingers: " << frame.fingers().extended().count()
+		<< ", tools: " << frame.tools().count()
+		<< ", gestures: " << frame.gestures().count() << std::endl;
+	*/
+	HandList hands = frame.hands();
+	// iterates through the list and calls the object h1
+	for (HandList::const_iterator h1 = hands.begin(); h1 != hands.end(); ++h1){
+		// getting the hand from the list address
+		const Hand hand = *h1;
+		std::string handtype;
+		// this means both hands can't be detected used on the same frame
+		if (hand.isLeft()) {
+			handtype = "Left";
+		}
+		else if(hand.isRight()) {
+			handtype = "Right";
+			playNote("thing", "thing2");
+		}
+		else {
+			PlaySound(NULL, 0, 0);
+		}
+
+		std::cout << std::string(4, ' ') << handtype << std::endl;
+		
+		// gettings the fingers
+		const FingerList fingers = hand.fingers();
+		for (FingerList::const_iterator f1 = fingers.begin(); f1 != fingers.end(); ++f1) {
+			const Finger finger = *f1;
+			std::string extendedFinger = "None";
+			if (finger.isExtended())
+			{
+				extendedFinger = fingerNames[finger.type()];
+				std::cout << extendedFinger;
+			}
+			std::cout << std::endl;
+		}
+	}
+
 }
 
 void MusicByTouchListener::onFocusGained(const Controller& controller) {
@@ -76,6 +123,10 @@ void MusicByTouchListener::onServiceConnect(const Controller& controller) {
 
 void MusicByTouchListener::onServiceDisconnect(const Controller& controller) {
 	std::cout << "Disconnecting from Service" << std::endl;
+}
+
+void MusicByTouchListener::playNote(const std::string hand, const std::string finger) {
+	PlaySound((LPCSTR)"..\\..\\notes\\piano-g.wav", NULL, SND_FILENAME);
 }
 
 int main(int argc, char** argv){
