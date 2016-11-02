@@ -70,27 +70,42 @@ void MusicByTouchListener::onFrame(const Controller& controller) {
 		<< ", gestures: " << frame.gestures().count() << std::endl;
 	*/
 	HandList hands = frame.hands();
+	
 	// iterates through the list and calls the object h1
 	for (HandList::const_iterator h1 = hands.begin(); h1 != hands.end(); ++h1){
 		// getting the hand from the list address
 		const Hand hand = *h1;
 		std::string handtype;
+		Vector handPosition;
+		float height;
 		// this means both hands can't be detected used on the same frame
 		if (hand.isLeft()) {
 			handtype = "Left";
+			handPosition = hand.palmPosition();
+			height = handPosition.y;
+			if (height < 1000) {
+				//playNote("thing", "thing2");
+				std::cout << height << std::endl;
+
+			}
 		}
 		else if(hand.isRight()) {
 			handtype = "Right";
-			playNote("thing", "thing2");
+			handPosition = hand.palmPosition();
+			height = handPosition.y;
+			if (height < 1000) {
+				//playNote("thing", "thing2");
+				std::cout << height << std::endl;
+			}
 		}
 		else {
-			PlaySound(NULL, 0, 0);
+			//PlaySound(NULL, 0, 0);
 		}
-
-		std::cout << std::string(4, ' ') << handtype << std::endl;
+		
+		//std::cout << std::string(4, ' ') << handtype << std::endl;
 		
 		// gettings the fingers
-		const FingerList fingers = hand.fingers();
+		/*const FingerList fingers = hand.fingers();
 		for (FingerList::const_iterator f1 = fingers.begin(); f1 != fingers.end(); ++f1) {
 			const Finger finger = *f1;
 			std::string extendedFinger = "None";
@@ -100,7 +115,7 @@ void MusicByTouchListener::onFrame(const Controller& controller) {
 				std::cout << extendedFinger;
 			}
 			std::cout << std::endl;
-		}
+		}*/
 	}
 
 }
