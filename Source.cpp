@@ -130,6 +130,7 @@ void MusicByTouchListener::playNote(const std::string hand, const std::string fi
 }
 
 int main(int argc, char** argv){
+	using namespace std;
 	// Creating the sample listener and controller
 	MusicByTouchListener list;
 	Controller controller;
@@ -144,7 +145,7 @@ int main(int argc, char** argv){
 	}
 
 	// press enter to quit the program
-	std::cin.get();
+	cin.get();
 
 	// remove the sample listener to free up the controller
 	controller.removeListener(list);
