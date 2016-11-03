@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <mmsystem.h>
 #include "Leap.h"
+#pragma comment(lib, "winmm.lib") 
 
 using namespace Leap;
 
@@ -25,7 +26,7 @@ class MusicByTouchListener : public Listener{
 		virtual void onServiceConnect(const Controller&);
 		virtual void onServiceDisconnect(const Controller&);
 	private:
-		void playNote(const std::string hand, const std::string finger);
+		void playNote(const std::string hand);
 };
 
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
@@ -46,6 +47,11 @@ void MusicByTouchListener::onConnect(const Controller& controller){
 	controller.enableGesture(Gesture::TYPE_KEY_TAP);
 	controller.enableGesture(Gesture::TYPE_SCREEN_TAP);
 	controller.enableGesture(Gesture::TYPE_SWIPE);
+
+	//gesture config settings
+	controller.config().setFloat("Gesture.Swipe.MinLength", 50.0);
+	controller.config().setFloat("Gesture.Swipe.MinVelocity", 20);
+	controller.config().save();
 }
 
 void MusicByTouchListener::onDisconnect(const Controller& controller) {
@@ -59,6 +65,49 @@ void MusicByTouchListener::onExit(const Controller& controller) {
 void MusicByTouchListener::onFrame(const Controller& controller) {
 	// ouputting frame info at each frame capture
 	const Frame frame = controller.frame();
+	
+	SwipeGesture swipeGesture = Gesture::invalid();
+	GestureList gestures = frame.gestures();
+	Gesture goodGesture;
+	for (GestureList::const_iterator g1 = gestures.begin(); g1 != gestures.end(); ++g1) {
+		const Gesture gesture = *g1;
+		if (gesture.type() == Gesture::Type::TYPE_SWIPE) {
+			swipeGesture = SwipeGesture(gesture);
+			Vector swipeVector = swipeGesture.direction();
+			if (swipeVector.y < 0) {
+				//std::cout << swipeVector.y << std::endl;
+				goodGesture = gesture;
+			}
+		}
+	}
+	HandList hands = goodGesture.hands();
+	// iterates through the list and calls the object h1
+	for (HandList::const_iterator h1 = hands.begin(); h1 != hands.end(); ++h1) {
+		// getting the hand from the list address
+		const Hand hand = *h1;
+		std::string handtype;
+		Vector handPosition;
+		float height;
+		// this means both hands can't be detected from the same gesture
+		if (hand.isLeft()) {
+			handtype = "Left";
+			handPosition = hand.palmPosition();
+			height = handPosition.y;
+			playNote(handtype);
+			//std::cout << height << std::endl;
+		}
+		else if (hand.isRight()) {
+			handtype = "Right";
+			handPosition = hand.palmPosition();
+			height = handPosition.y;
+			playNote(handtype);
+			//std::cout << height << std::endl;
+		}
+		else {
+			//PlaySound(NULL, 0, 0);
+		}
+	}
+	
 	// a bunch of random info
 	/*
 	// Commenting out for now while I try to only detect fingers
@@ -68,39 +117,8 @@ void MusicByTouchListener::onFrame(const Controller& controller) {
 		<< ", extended fingers: " << frame.fingers().extended().count()
 		<< ", tools: " << frame.tools().count()
 		<< ", gestures: " << frame.gestures().count() << std::endl;
-	*/
-	HandList hands = frame.hands();
 	
-	// iterates through the list and calls the object h1
-	for (HandList::const_iterator h1 = hands.begin(); h1 != hands.end(); ++h1){
-		// getting the hand from the list address
-		const Hand hand = *h1;
-		std::string handtype;
-		Vector handPosition;
-		float height;
-		// this means both hands can't be detected used on the same frame
-		if (hand.isLeft()) {
-			handtype = "Left";
-			handPosition = hand.palmPosition();
-			height = handPosition.y;
-			if (height < 1000) {
-				//playNote("thing", "thing2");
-				std::cout << height << std::endl;
-
-			}
-		}
-		else if(hand.isRight()) {
-			handtype = "Right";
-			handPosition = hand.palmPosition();
-			height = handPosition.y;
-			if (height < 1000) {
-				//playNote("thing", "thing2");
-				std::cout << height << std::endl;
-			}
-		}
-		else {
-			//PlaySound(NULL, 0, 0);
-		}
+	
 		
 		//std::cout << std::string(4, ' ') << handtype << std::endl;
 		
@@ -116,7 +134,7 @@ void MusicByTouchListener::onFrame(const Controller& controller) {
 			}
 			std::cout << std::endl;
 		}*/
-	}
+	//}*/
 
 }
 
@@ -140,8 +158,12 @@ void MusicByTouchListener::onServiceDisconnect(const Controller& controller) {
 	std::cout << "Disconnecting from Service" << std::endl;
 }
 
-void MusicByTouchListener::playNote(const std::string hand, const std::string finger) {
-	PlaySound((LPCSTR)"..\\..\\notes\\piano-g.wav", NULL, SND_FILENAME);
+void MusicByTouchListener::playNote(const std::string hand) {
+	//PlaySound((LPCSTR)"VEC5 Jump Kicks 30.wav", NULL, SND_FILENAME);
+	// | SND_ASYNC
+	if(hand == "Left") sndPlaySound("left.wav", SND_FILENAME);
+	else sndPlaySound("right.wav", SND_FILENAME);
+
 }
 
 int main(int argc, char** argv){
