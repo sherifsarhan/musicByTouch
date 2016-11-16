@@ -49,8 +49,8 @@ void MusicByTouchListener::onConnect(const Controller& controller){
 	controller.enableGesture(Gesture::TYPE_SWIPE);
 
 	//gesture config settings
-	controller.config().setFloat("Gesture.Swipe.MinLength", 50.0);
-	controller.config().setFloat("Gesture.Swipe.MinVelocity", 20);
+	controller.config().setFloat("Gesture.Swipe.MinLength", 25.0);
+	controller.config().setFloat("Gesture.Swipe.MinVelocity", 7);
 	controller.config().save();
 }
 
@@ -64,20 +64,38 @@ void MusicByTouchListener::onExit(const Controller& controller) {
 
 void MusicByTouchListener::onFrame(const Controller& controller) {
 	// ouputting frame info at each frame capture
+	//playNote("Left");
+	//playNote("right");
+
 	const Frame frame = controller.frame();
 	
 	SwipeGesture swipeGesture = Gesture::invalid();
 	GestureList gestures = frame.gestures();
 	Gesture goodGesture;
+	int count = 1;
+	bool exitFor = false;
 	for (GestureList::const_iterator g1 = gestures.begin(); g1 != gestures.end(); ++g1) {
+		if (exitFor) break;
 		const Gesture gesture = *g1;
-		if (gesture.type() == Gesture::Type::TYPE_SWIPE) {
-			swipeGesture = SwipeGesture(gesture);
-			Vector swipeVector = swipeGesture.direction();
-			if (swipeVector.y < 0) {
-				//std::cout << swipeVector.y << std::endl;
-				goodGesture = gesture;
+		//std::cout << count << std::endl;
+		count++;
+		switch ((*g1).state()) {
+		case Leap::Gesture::STATE_STOP:
+			//Handle ending gestures
+			if (gesture.type() == Gesture::Type::TYPE_SWIPE) {
+				swipeGesture = SwipeGesture(gesture);
+				Vector swipeVector = swipeGesture.direction();
+				if (swipeVector.y < 0) {
+					std::cout << swipeVector.y << std::endl;
+					std::cout << "-------------------------------------------------------" << std::endl;
+					goodGesture = gesture;
+					exitFor = true;
+				}
 			}
+			break;
+		default:
+			//Handle unrecognized states
+			break;
 		}
 	}
 	HandList hands = goodGesture.hands();
@@ -96,15 +114,12 @@ void MusicByTouchListener::onFrame(const Controller& controller) {
 			playNote(handtype);
 			//std::cout << height << std::endl;
 		}
-		else if (hand.isRight()) {
+		if (hand.isRight()) {
 			handtype = "Right";
 			handPosition = hand.palmPosition();
 			height = handPosition.y;
 			playNote(handtype);
 			//std::cout << height << std::endl;
-		}
-		else {
-			//PlaySound(NULL, 0, 0);
 		}
 	}
 	
